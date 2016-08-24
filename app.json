@@ -30,7 +30,7 @@
     {
       "plan": "heroku-postgresql:hobby-dev",
       "options": {
-         "version": "9.5"
+         "version": "9.4"
       }
     },
     "heroku-redis:hobby-dev",
