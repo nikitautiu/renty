@@ -1,4 +1,8 @@
 sudo: true
+
+addons:
+  postgresql: "9.5"
+
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq build-essential gettext python-dev zlib1g-dev libpq-dev xvfb
@@ -6,7 +10,20 @@ before_install:
   - sudo apt-get install -qq graphviz-dev python-setuptools python3-dev python-virtualenv python-pip
   - sudo apt-get install -qq firefox automake libtool libreadline6 libreadline6-dev libreadline-dev
   - sudo apt-get install -qq libsqlite3-dev libxml2 libxml2-dev libssl-dev libbz2-dev wget curl llvm
+install:
+  - pip install -r requirements/test.txt
+befores_script:
+  - export DJANGO_SETTINGS_MODULE=config.settings.test
+  - psql -c 'create database test_db;' -U postgres; fi
+  - export DATABASE_URL=postgres://postgres@localhost:5432/test_db
+
 language: python
 python:
 - "3.5"
 
+branches:
+  only:
+    - dev
+    - master
+script:
+  - python manage.py test
