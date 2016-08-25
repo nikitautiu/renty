@@ -24,8 +24,20 @@ install:
   - pip install -r requirements/test.txt
   - pip install coveralls
 
-
 script:
   - coverage run -m py.test
 after_script:
   - coveralls
+
+
+deploy:
+  provider: heroku
+  api_key:
+    secure: "7d7f1f6b-ea28-4a2b-9295-a32cf2092b40"
+  app:
+    master: renty
+    dev: renty-dev
+  run:
+    - "./manage.py syncdb --noinput"
+    - "./mange.py migrte --all"
+    - restart
