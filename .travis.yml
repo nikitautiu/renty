@@ -26,6 +26,6 @@ install:
 
 
 script:
-  - coverage py.test
+  - coverage run -m py.test
 after_script:
   - coveralls
