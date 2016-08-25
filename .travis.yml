@@ -41,6 +41,5 @@ deploy:
     master: renty
     dev: renty-dev
   run:
-    - "python ./manage.py syncdb --noinput"
     - "python ./manage.py migrate"
     - restart
