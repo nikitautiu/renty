@@ -1,45 +1,35 @@
 sudo: true
-
 git:
   depth: 3
-
 addons:
-  postgresql: "9.4"
-
+  postgresql: '9.4'
 language: python
 python:
-- "3.5"
-
+- '3.5'
 branches:
   only:
-    - dev
-    - master
-
+  - dev
+  - master
 env:
- global:
+  global:
   - DJANGO_SETTINGS_MODULE=config.settings.test
   - DATABASE_URL=postgres://postgres@localhost:5432
-
 install:
-  - pip install -r requirements/test.txt
-  - pip install coveralls
-
+- pip install -r requirements/test.txt
+- pip install coveralls
 script:
-  - coverage run -m py.test
+- coverage run -m py.test
 after_script:
-  - coveralls
-
-
+- coveralls
 deploy:
   provider: heroku
   skip_cleanup: true
-
   api_key:
-    secure: "7d7f1f6b-ea28-4a2b-9295-a32cf2092b40"
+    secure: Iwe14RKG87TgA6UWvKfoRXgHPHl9y1AFVG3pmltchsnP2KhHf73YAKrCUVgVd/yV13dy6I1snyxu5uAXT35M7ukTrLymlf1AAASx3em/dE0mQA92iJtNE/XTw0POxWH9gFMf/g4KvzGfGBFx28neqBUmMe5jvcTBdT1RvzC9qUr+Z9olqH3mLc+dyN0/F9IBs+G+DLLn6ymWBQSvckH2OXPzuZOUT5E5SUWRLyrFdPvbfg6acVaRryz/m3NVgpcIKWLG6YTyWbm81/d7FgUvTx2S/6n4aLXV1vkXVNQJ8q6Db+seSV5BhSBAQTuREw/zGvBs18U8ql0MIwy5nxtE0mNM/3bGoYsTzhNK9fhoRP6VtADOEYwbKGYfMZ/hk1IDGwECuLpQKZ+odanPDhgaThBcW/qz0m1u62X78G0Qf66N4OP5+1Vs5gLyweGHCKAF0jBqrOmu/O0k8S7pkEgcs0bki11XAMqDuwmwNh9HirNABeORcrfF9aQWvrZNxXjchGyekpOtwH2BvpFqDvHBWSwDU9yshtA2bSgfwImlQXzW/ytJY+tFJDqbIQJxQCfrzr31db21SHLfMQXP1hB1+vP+rzjik/RmT2lWaL7uZ7g03NK11FpA88RuVKH1zZ2WAkgl+DndBi9T5m8YS2Sy5dlhGY6LapoANWiqGecJAT0=
   strategy: git
   app:
     master: renty
     dev: renty-dev
   run:
-    - "python ./manage.py migrate"
-    - restart
+  - python ./manage.py migrate
+  - restart
