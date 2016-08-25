@@ -32,6 +32,8 @@ after_script:
 
 deploy:
   provider: heroku
+  skip_cleanup: true
+
   api_key:
     secure: "7d7f1f6b-ea28-4a2b-9295-a32cf2092b40"
   strategy: git
