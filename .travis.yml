@@ -34,10 +34,11 @@ deploy:
   provider: heroku
   api_key:
     secure: "7d7f1f6b-ea28-4a2b-9295-a32cf2092b40"
+  strategy: git
   app:
     master: renty
     dev: renty-dev
   run:
-    - "./manage.py syncdb --noinput"
-    - "./manage.py migrate --all"
+    - "python ./manage.py syncdb --noinput"
+    - "python ./manage.py migrate"
     - restart
