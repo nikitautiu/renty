@@ -39,5 +39,5 @@ deploy:
     dev: renty-dev
   run:
     - "./manage.py syncdb --noinput"
-    - "./mange.py migrate --all"
+    - "./manage.py migrate --all"
     - restart
