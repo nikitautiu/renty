@@ -72,3 +72,4 @@ renty/media/
 # Hitch directory
 tests/.hitch
 
+.cache
