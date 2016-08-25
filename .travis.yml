@@ -1,15 +1,10 @@
 sudo: true
 
+git:
+  depth: 3
+
 addons:
   postgresql: "9.4"
-env:
- global:
-  - DJANGO_SETTINGS_MODULE=config.settings.test
-  - DATABASE_URL=postgres://postgres@localhost:5432/test_db
-
-install:
-  - pip install -r requirements/test.txt
-  - pip install coveralls
 
 language: python
 python:
@@ -19,7 +14,18 @@ branches:
   only:
     - dev
     - master
+
+env:
+ global:
+  - DJANGO_SETTINGS_MODULE=config.settings.test
+  - DATABASE_URL=postgres://postgres@localhost:5432/test_db
+
+install:
+  - pip install -r requirements/test.txt
+  - pip install coveralls
+
+
 script:
-  - coverage run manage.py test
+  - coverage py.test
 after_script:
   - coveralls
