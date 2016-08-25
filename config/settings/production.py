@@ -4,10 +4,7 @@ Production Configurations
 
 - Use djangosecure
 - Use Amazon's S3 for storing static files and uploaded media
-- Use mailgun to send emails
 - Use Redis on Heroku
-
-- Use sentry for error logging
 
 
 """
@@ -31,16 +28,11 @@ SECRET_KEY = env('DJANGO_SECRET_KEY')
 # This ensures that Django will be able to detect a secure connection
 # properly on Heroku.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-# raven sentry client
-# See https://docs.getsentry.com/hosted/clients/python/integrations/django/
-INSTALLED_APPS += ('raven.contrib.django.raven_compat', )
 
 # Use Whitenoise to serve static files
 # See: https://whitenoise.readthedocs.io/
 WHITENOISE_MIDDLEWARE = ('whitenoise.middleware.WhiteNoiseMiddleware', )
 MIDDLEWARE_CLASSES = WHITENOISE_MIDDLEWARE + MIDDLEWARE_CLASSES
-RAVEN_MIDDLEWARE = ('raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware', )
-MIDDLEWARE_CLASSES = RAVEN_MIDDLEWARE + MIDDLEWARE_CLASSES
 
 
 # SECURITY CONFIGURATION
@@ -116,12 +108,6 @@ DEFAULT_FROM_EMAIL = env('DJANGO_DEFAULT_FROM_EMAIL',
 EMAIL_SUBJECT_PREFIX = env('DJANGO_EMAIL_SUBJECT_PREFIX', default='[renty] ')
 SERVER_EMAIL = env('DJANGO_SERVER_EMAIL', default=DEFAULT_FROM_EMAIL)
 
-# Anymail with Mailgun
-INSTALLED_APPS += ("anymail", )
-ANYMAIL = {
-    "MAILGUN_API_KEY": env('DJANGO_MAILGUN_API_KEY'),
-}
-EMAIL_BACKEND = "anymail.backends.mailgun.MailgunBackend"
 
 # TEMPLATE CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -153,15 +139,21 @@ CACHES = {
 }
 
 
-# Sentry Configuration
-SENTRY_DSN = env('DJANGO_SENTRY_DSN')
-SENTRY_CLIENT = env('DJANGO_SENTRY_CLIENT', default='raven.contrib.django.raven_compat.DjangoClient')
+# LOGGING CONFIGURATION
+# ------------------------------------------------------------------------------
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#logging
+# A sample logging configuration. The only tangible logging
+# performed by this configuration is to send an email to
+# the site admins on every HTTP 500 error when DEBUG=False.
+# See http://docs.djangoproject.com/en/dev/topics/logging for
+# more details on how to customize your logging configuration.
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True,
-    'root': {
-        'level': 'WARNING',
-        'handlers': ['sentry'],
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
     },
     'formatters': {
         'verbose': {
@@ -170,44 +162,39 @@ LOGGING = {
         },
     },
     'handlers': {
-        'sentry': {
+        'mail_admins': {
             'level': 'ERROR',
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
         },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
-        }
+            'formatter': 'verbose',
+        },
     },
     'loggers': {
-        'django.db.backends': {
+        'django.request': {
+            'handlers': ['mail_admins'],
             'level': 'ERROR',
-            'handlers': ['console'],
-            'propagate': False,
-        },
-        'raven': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
-            'propagate': False,
-        },
-        'sentry.errors': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
-            'propagate': False,
+            'propagate': True
         },
         'django.security.DisallowedHost': {
             'level': 'ERROR',
-            'handlers': ['console', 'sentry'],
-            'propagate': False,
-        },
-    },
+            'handlers': ['console', 'mail_admins'],
+            'propagate': True
+        }
+    }
 }
-SENTRY_CELERY_LOGLEVEL = env.int('DJANGO_SENTRY_LOG_LEVEL', logging.INFO)
-RAVEN_CONFIG = {
-    'CELERY_LOGLEVEL': env.int('DJANGO_SENTRY_LOG_LEVEL', logging.INFO),
-    'DSN': SENTRY_DSN
-}
+
+# enable global logging if set in env
+DJANGO_LOG_LEVEL = env.str('DJANGO_LOG_LEVEL', default=None)
+if DJANGO_LOG_LEVEL is not None:
+    LOGGING['loggers']['django'] = {
+        'level': DJANGO_LOG_LEVEL,
+        'handlers': ['console'],
+        'propagate': True
+    }
 
 # Custom Admin URL, use {% url 'admin:index' %}
 ADMIN_URL = env('DJANGO_ADMIN_URL')
