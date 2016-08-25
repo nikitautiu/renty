@@ -188,6 +188,15 @@ LOGGING = {
     }
 }
 
+# enable global logging if set in env
+DJANGO_LOG_LEVEL = env.str('DJANGO_LOG_LEVEL', default=None)
+if DJANGO_LOG_LEVEL is not None:
+    LOGGING['loggers']['django'] = {
+        'level': DJANGO_LOG_LEVEL,
+        'handlers': ['console'],
+        'propagate': True
+    }
+
 # Custom Admin URL, use {% url 'admin:index' %}
 ADMIN_URL = env('DJANGO_ADMIN_URL')
 
